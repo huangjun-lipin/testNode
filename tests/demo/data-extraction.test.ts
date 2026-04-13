@@ -10,7 +10,7 @@ import {
   createBrowserSession,
   printResult,
   type TestResult,
-} from '../src/config.js';
+} from '../../src/config.js';
 
 // 定义提取结果的 Schema
 const PostSchema = z.object({

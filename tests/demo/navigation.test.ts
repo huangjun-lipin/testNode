@@ -1,7 +1,7 @@
 /**
- * 测试用例：搜索功能自动化测试
+ * 测试用例：页面导航自动化测试
  *
- * 让 AI Agent 在搜索引擎中执行搜索，验证搜索结果是否包含期望内容。
+ * 让 AI Agent 验证页面跳转、多页面导航和链接是否正常工作。
  */
 import { Agent } from 'browsernode';
 import {
@@ -9,33 +9,33 @@ import {
   createBrowserSession,
   printResult,
   type TestResult,
-} from '../src/config.js';
+} from '../../src/config.js';
 
-const testName = '搜索功能测试';
+const testName = '页面导航测试';
 
 async function run(): Promise<TestResult> {
   const start = Date.now();
   const llm = createLLM();
-  const browserSession = createBrowserSession('./tmp/traces/search');
+  const browserSession = createBrowserSession('./tmp/traces/navigation');
 
   try {
     const agent = new Agent({
       task: `
-        1. 打开 https://www.bing.com
-        2. 在搜索框中输入 "browsernode github"
-        3. 点击搜索按钮
-        4. 等待搜索结果加载
-        5. 检查搜索结果中是否包含 "browsernode" 相关内容
-        6. 返回第一个搜索结果的标题和链接
+        1. 打开 https://the-internet.herokuapp.com/
+        2. 找到并点击 "Broken Images" 链接
+        3. 确认页面已跳转，记录当前页面标题
+        4. 按浏览器的后退按钮返回首页
+        5. 找到并点击 "Checkboxes" 链接
+        6. 确认页面已跳转，记录当前页面标题
+        7. 返回你成功访问的所有页面标题列表
       `,
       llm,
       browserSession,
     });
 
-    const history = await agent.run(10);
+    const history = await agent.run(15);
     const result = history.finalResult();
-    const passed =
-      result != null && String(result).toLowerCase().includes('browsernode');
+    const passed = result != null && String(result).length > 10;
 
     return {
       name: testName,
@@ -58,8 +58,7 @@ async function run(): Promise<TestResult> {
   }
 }
 
-// 直接运行时执行
-const isDirectRun = process.argv[1]?.includes('search.test');
+const isDirectRun = process.argv[1]?.includes('navigation.test');
 if (isDirectRun) {
   const result = await run();
   printResult(result);

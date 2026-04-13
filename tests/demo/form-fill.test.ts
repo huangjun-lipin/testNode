@@ -1,7 +1,7 @@
 /**
- * 测试用例：页面导航自动化测试
+ * 测试用例：表单填写自动化测试
  *
- * 让 AI Agent 验证页面跳转、多页面导航和链接是否正常工作。
+ * 让 AI Agent 自动打开一个在线表单页面，识别表单元素并填写内容。
  */
 import { Agent } from 'browsernode';
 import {
@@ -9,25 +9,27 @@ import {
   createBrowserSession,
   printResult,
   type TestResult,
-} from '../src/config.js';
+} from '../../src/config.js';
 
-const testName = '页面导航测试';
+const testName = '表单填写测试';
 
 async function run(): Promise<TestResult> {
   const start = Date.now();
   const llm = createLLM();
-  const browserSession = createBrowserSession('./tmp/traces/navigation');
+  const browserSession = createBrowserSession('./tmp/traces/form');
 
   try {
     const agent = new Agent({
       task: `
-        1. 打开 https://the-internet.herokuapp.com/
-        2. 找到并点击 "Broken Images" 链接
-        3. 确认页面已跳转，记录当前页面标题
-        4. 按浏览器的后退按钮返回首页
-        5. 找到并点击 "Checkboxes" 链接
-        6. 确认页面已跳转，记录当前页面标题
-        7. 返回你成功访问的所有页面标题列表
+        1. 打开 https://demoqa.com/automation-practice-form
+        2. 填写以下表单字段：
+           - First Name: "Test"
+           - Last Name: "User"
+           - Email: "test@example.com"
+           - Mobile: "1234567890"
+        3. 选择 Gender 为 "Male"
+        4. 确认所有字段已正确填写
+        5. 返回已填写的所有字段的值作为确认
       `,
       llm,
       browserSession,
@@ -35,7 +37,8 @@ async function run(): Promise<TestResult> {
 
     const history = await agent.run(15);
     const result = history.finalResult();
-    const passed = result != null && String(result).length > 10;
+    const resultStr = String(result).toLowerCase();
+    const passed = resultStr.includes('test') && resultStr.includes('user');
 
     return {
       name: testName,
@@ -58,7 +61,7 @@ async function run(): Promise<TestResult> {
   }
 }
 
-const isDirectRun = process.argv[1]?.includes('navigation.test');
+const isDirectRun = process.argv[1]?.includes('form-fill.test');
 if (isDirectRun) {
   const result = await run();
   printResult(result);
