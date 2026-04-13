@@ -1,0 +1,24 @@
+{
+  "name": "browsernode-test-automation",
+  "version": "1.0.0",
+  "description": "基于 browsernode 的浏览器自动化测试项目",
+  "type": "module",
+  "scripts": {
+    "test:search": "npx tsx tests/search.test.ts",
+    "test:form": "npx tsx tests/form-fill.test.ts",
+    "test:nav": "npx tsx tests/navigation.test.ts",
+    "test:extract": "npx tsx tests/data-extraction.test.ts",
+    "test:all": "npx tsx src/runner.ts",
+    "test:headless": "HEADLESS=true npx tsx src/runner.ts"
+  },
+  "dependencies": {
+    "browsernode": "latest",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.13",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.2"
+  }
+}
