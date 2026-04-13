@@ -109,12 +109,20 @@ export interface TestResult {
   duration: number;
   error?: string;
   details?: string;
+  /** 第几次尝试通过（从 1 开始），仅重试后才有意义 */
+  attempt?: number;
+  /** 总共尝试了几次 */
+  totalAttempts?: number;
 }
 
 export function printResult(result: TestResult) {
   const icon = result.passed ? '✅' : '❌';
+  const attemptInfo =
+    result.totalAttempts && result.totalAttempts > 1
+      ? ` [第${result.attempt}/${result.totalAttempts}次]`
+      : '';
   console.log(
-    `\n${icon} [${result.name}] ${result.passed ? 'PASSED' : 'FAILED'} (${result.duration}ms)`,
+    `\n${icon} [${result.name}] ${result.passed ? 'PASSED' : 'FAILED'} (${result.duration}ms)${attemptInfo}`,
   );
   if (result.details) console.log(`   📋 ${result.details}`);
   if (result.error) console.log(`   ⚠️  ${result.error}`);

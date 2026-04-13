@@ -33,6 +33,7 @@ async function run(): Promise<TestResult> {
       `,
       llm,
       browserSession,
+      useVision: false, // 不发截图，纯文本模式
     });
 
     const history = await agent.run(15);

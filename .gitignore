@@ -4,4 +4,6 @@ dist/
 tmp/
 test-results/
 traces/
+reports/
+logs/
 *.log
