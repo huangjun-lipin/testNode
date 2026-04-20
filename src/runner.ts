@@ -48,11 +48,17 @@ function discoverTests(filters: string[]) {
   });
 }
 
-async function runWithTimeout(fn: () => Promise<TestResult>, timeoutMs: number): Promise<TestResult> {
+async function runWithTimeout(
+  fn: () => Promise<TestResult>,
+  timeoutMs: number,
+): Promise<TestResult> {
   return Promise.race([
     fn(),
     new Promise<TestResult>((_, reject) =>
-      setTimeout(() => reject(new Error(`用例执行超时 (>${timeoutMs / 1000}s)`)), timeoutMs),
+      setTimeout(
+        () => reject(new Error(`用例执行超时 (>${timeoutMs / 1000}s)`)),
+        timeoutMs,
+      ),
     ),
   ]);
 }
@@ -68,7 +74,12 @@ async function runWithRetry(file: string, label: string): Promise<TestResult> {
     try {
       const mod = await import(file);
       if (!mod.run) {
-        return { name: label, passed: true, duration: 0, details: '未导出 run()，跳过' };
+        return {
+          name: label,
+          passed: true,
+          duration: 0,
+          details: '未导出 run()，跳过',
+        };
       }
 
       lastResult = await runWithTimeout(() => mod.run(), TEST_TIMEOUT);
@@ -150,7 +161,8 @@ function saveReport(report: TestReport) {
   if (passed.length > 0) {
     lines.push(`✅ 通过 (${passed.length}):`);
     for (const r of passed) {
-      const retry = r.totalAttempts && r.totalAttempts > 1 ? ` [第${r.attempt}次通过]` : '';
+      const retry =
+        r.totalAttempts && r.totalAttempts > 1 ? ` [第${r.attempt}次通过]` : '';
       lines.push(`   ✅ ${r.name} (${r.duration}ms)${retry}`);
       if (r.details) lines.push(`      ${r.details.slice(0, 200)}`);
     }
@@ -160,7 +172,10 @@ function saveReport(report: TestReport) {
   if (failed.length > 0) {
     lines.push(`❌ 失败 (${failed.length}):`);
     for (const r of failed) {
-      const retry = r.totalAttempts && r.totalAttempts > 1 ? ` [重试${r.totalAttempts}次仍失败]` : '';
+      const retry =
+        r.totalAttempts && r.totalAttempts > 1
+          ? ` [重试${r.totalAttempts}次仍失败]`
+          : '';
       lines.push(`   ❌ ${r.name} (${r.duration}ms)${retry}`);
       if (r.error) lines.push(`      错误: ${r.error.slice(0, 300)}`);
       if (r.details) lines.push(`      详情: ${r.details.slice(0, 200)}`);
@@ -169,7 +184,9 @@ function saveReport(report: TestReport) {
   }
 
   lines.push('─'.repeat(60));
-  lines.push(`  总计: ${report.summary.total} | 通过: ${report.summary.passed} | 失败: ${report.summary.failed}`);
+  lines.push(
+    `  总计: ${report.summary.total} | 通过: ${report.summary.passed} | 失败: ${report.summary.failed}`,
+  );
   lines.push('═'.repeat(60));
 
   writeFileSync(txtPath, lines.join('\n'), 'utf-8');
@@ -215,9 +232,12 @@ async function runAll() {
   const totalTime = results.reduce((sum, r) => sum + r.duration, 0);
 
   for (const r of results) {
-    const retry = r.totalAttempts && r.totalAttempts > 1
-      ? (r.passed ? ` (第${r.attempt}次通过)` : ` (重试${r.totalAttempts}次)`)
-      : '';
+    const retry =
+      r.totalAttempts && r.totalAttempts > 1
+        ? r.passed
+          ? ` (第${r.attempt}次通过)`
+          : ` (重试${r.totalAttempts}次)`
+        : '';
     console.log(`  ${r.passed ? '✅' : '❌'} ${r.name}${retry}`);
   }
 
